@@ -1,0 +1,15 @@
+{
+  "name": "nodejs_assignment3",
+  "version": "1.0.0",
+  "description": "third assignment for nodejs udemy course",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "author": "Josh Ladwig",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

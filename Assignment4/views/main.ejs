@@ -1,0 +1,14 @@
+<%- include('includes/header.ejs') %>
+
+<body>
+  <%- include('includes/navigation.ejs') %>
+  <h1>ASSIGNMENT 4</h1>
+  <form class="user-form" action="/" method="POST">
+    <div class="form-control">
+        <label for="user"><%= formLabel %></label>
+        <input type="text" name="user" id="user">
+    </div>
+
+    <button class="btn" type="submit">Add User</button>
+</form>
+<%- include('includes/end.ejs') %>
