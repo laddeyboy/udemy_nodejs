@@ -30,7 +30,6 @@ exports.getEditProduct = (req, res, next) => {
     if (!product) {
       return res.redirect("/");
     }
-    console.log("what is editMode:", editMode);
     res.render("admin/edit-product", {
       pageTitle: "Edit Product",
       path: "/admin/edit-product",
@@ -70,4 +69,10 @@ exports.getProducts = (req, res, next) => {
       productCSS: true
     });
   });
+};
+
+exports.postDeleteProduct = (req, res, next) => {
+  const prodId = req.body.productId;
+  Product.deleteById(prodId);
+  res.redirect("/admin/products");
 };
