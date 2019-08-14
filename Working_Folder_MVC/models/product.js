@@ -1,20 +1,6 @@
-const fs = require("fs");
-const path = require("path");
-const Cart = require("./cart");
+const db = require("../util/database");
 
-const p = path.join(
-  path.dirname(process.mainModule.filename),
-  "data",
-  "products.json"
-);
-const getProductsFromFile = cb => {
-  fs.readFile(p, (err, fileContent) => {
-    if (err) {
-      return cb([]);
-    }
-    cb(JSON.parse(fileContent));
-  });
-};
+const Cart = require("./cart");
 
 module.exports = class Product {
   constructor(id, title, imageUrl, description, price) {
@@ -26,45 +12,23 @@ module.exports = class Product {
   }
 
   save() {
-    getProductsFromFile(products => {
-      if (this.id) {
-        const existingProductIndex = products.findIndex(
-          prod => prod.id === this.id
-        );
-        const updatedProducts = [...products];
-        updatedProducts[existingProductIndex] = this;
-        fs.writeFile(p, JSON.stringify(updatedProducts), err => {
-          console.log(`[product.js] save ${err}`);
-        });
-      } else {
-        this.id = Math.random().toString();
-        products.push(this);
-        fs.writeFile(p, JSON.stringify(products), err => {
-          console.log(`[product.js] save ${err}`);
-        });
-      }
-    });
+    const insertQuery =
+      "INSERT INTO products(title, price, description, imageurl) VALUES ($1,$2,$3,$4)";
+    const queryValues = [
+      this.title,
+      this.price,
+      this.description,
+      this.imageUrl
+    ];
+    return db.query(insertQuery, queryValues);
   }
 
-  static deleteById(id) {
-    getProductsFromFile(products => {
-      const product = products.find(prod => prod.id === id);
-      const updatedProducts = products.filter(p => p.id !== id);
-      fs.writeFile(p, JSON.stringify(updatedProducts), err => {
-        if (!err) {
-          Cart.deleteProduct(id, product.price);
-        }
-      });
-    });
+  static deleteById(id) {}
+
+  static fetchAll() {
+    // fetch all needs to reach out to the database
+    return db.query("SELECT * FROM products");
   }
 
-  static fetchAll(cb) {
-    getProductsFromFile(cb);
-  }
-  static findById(id, cb) {
-    getProductsFromFile(products => {
-      const product = products.find(p => p.id === id);
-      cb(product);
-    });
-  }
+  static findById(id) {}
 };
