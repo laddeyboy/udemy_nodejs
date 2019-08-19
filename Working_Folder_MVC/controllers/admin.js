@@ -10,18 +10,27 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
+  const imageurl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product(null, title, imageUrl, description, price);
-  product
-    .save()
-    .then(result => {
-      console.log("RESULT->", result);
-      res.redirect("/");
-    })
-    .catch(err => console.log("[admin.js] postAddProduct", err));
-  res.redirect("/");
+  Product.create({
+    title,
+    price,
+    imageurl,
+    description
+  })
+    .then(result => console.log("Created Product"))
+    .catch(err => console.log(err));
+  // pre Sequelize
+  // const product = new Product(null, title, imageUrl, description, price);
+  // product
+  //   .save()
+  //   .then(result => {
+  //     console.log("RESULT->", result);
+  //     res.redirect("/");
+  //   })
+  //   .catch(err => console.log("[admin.js] postAddProduct", err));
+  // res.redirect("/");
 };
 
 exports.getEditProduct = (req, res, next) => {
@@ -65,16 +74,26 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll(products => {
-    res.render("admin/products", {
-      prods: products,
-      pageTitle: "Admin Products",
-      path: "/admin/products",
-      hasProducts: products.length > 0,
-      activeShop: true,
-      productCSS: true
-    });
-  });
+  Product.findAll()
+    .then(products => {
+      res.render("admin/products", {
+        prods: products,
+        pageTitle: "Admin Products",
+        path: "/admin/products"
+      });
+    })
+    .catch(err => console.log("[admin.js] getProducts", err));
+  // pre Sequelize
+  // Product.fetchAll(products => {
+  //   res.render("admin/products", {
+  //     prods: products,
+  //     pageTitle: "Admin Products",
+  //     path: "/admin/products",
+  //     hasProducts: products.length > 0,
+  //     activeShop: true,
+  //     productCSS: true
+  //   });
+  // });
 };
 
 exports.postDeleteProduct = (req, res, next) => {

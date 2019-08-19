@@ -2,38 +2,60 @@ const Product = require("../models/product");
 const Cart = require("../models/cart");
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
-    .then(({ rows }) => {
+  Product.findAll()
+    .then(products => {
       res.render("shop/product-list", {
-        prods: rows,
+        prods: products,
         pageTitle: "All Products",
+        path: "/products"
+      });
+    })
+    .catch(err => console.log("[shop.js] getProducts", err));
+  // pre Sequelize
+  // Product.fetchAll().then(({ rows }) => {
+  //   res.render("shop/product-list", {
+  //     prods: rows,
+  //     pageTitle: "All Products",
+  //     path: "/products"
+  //   });
+  // });
+};
+
+exports.getProduct = (req, res, next) => {
+  const prodId = req.params.productId;
+  // Product.findAll({ where: { id: prodId } }); // alternative with where clause
+  // using findAll returns an ARRAY though so be careful here.
+  Product.findByPk(prodId)
+    .then(product => {
+      res.render("shop/product-detail", {
+        product: product,
+        pageTitle: product.title,
         path: "/products"
       });
     })
     .catch(err => console.log("[shop.js] getIndex", err));
 };
 
-exports.getProduct = (req, res, next) => {
-  const prodId = req.params.productId;
-  Product.findById(prodId, product => {
-    res.render("shop/product-detail", {
-      product: product,
-      pageTitle: product.title,
-      path: "/products"
-    });
-  });
-};
-
 exports.getIndex = (req, res, next) => {
-  Product.fetchAll()
-    .then(({ rows }) => {
+  Product.findAll()
+    .then(products => {
       res.render("shop/index", {
-        prods: rows,
+        prods: products,
         pageTitle: "Shop",
         path: "/"
       });
     })
     .catch(err => console.log("[shop.js] getIndex", err));
+  // pre Sequelize
+  // Product.fetchAll()
+  //   .then(({ rows }) => {
+  //     res.render("shop/index", {
+  //       prods: rows,
+  //       pageTitle: "Shop",
+  //       path: "/"
+  //     });
+  //   })
+  //   .catch(err => console.log("[shop.js] getIndex", err));
 };
 
 exports.getCart = (req, res, next) => {
