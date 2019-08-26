@@ -13,13 +13,17 @@ exports.postAddProduct = (req, res, next) => {
   const imageurl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  Product.create({
-    title,
-    price,
-    imageurl,
-    description
-  })
-    .then(result => console.log("Created Product"))
+  req.user
+    .createProduct({
+      title,
+      price,
+      imageurl,
+      description
+    })
+    .then(result => {
+      console.log("CREATED PRODUCT");
+      res.redirect("/admin/products");
+    })
     .catch(err => console.log(err));
   // pre Sequelize
   // const product = new Product(null, title, imageUrl, description, price);
@@ -36,22 +40,40 @@ exports.postAddProduct = (req, res, next) => {
 exports.getEditProduct = (req, res, next) => {
   // getting a query parameter
   const editMode = req.query.edit;
-  // getting a passed parameter
-  const prodId = req.params.productId;
   if (!editMode) {
     return res.redirect("/");
   }
-  Product.findById(prodId, product => {
-    if (!product) {
-      return res.redirect("/");
-    }
-    res.render("admin/edit-product", {
-      pageTitle: "Edit Product",
-      path: "/admin/edit-product",
-      editing: editMode,
-      product: product
-    });
-  });
+  // getting a passed parameter
+  const prodId = req.params.productId;
+  req.user
+    .getProducts({ where: { id: prodId } })
+    // Product.findByPk(prodId)
+    .then(products => {
+      const product = products[0];
+      if (!product) {
+        return res.redirect("/");
+      }
+      res.render("admin/edit-product", {
+        pageTitle: "Edit Product",
+        path: "/admin/edit-product",
+        editing: editMode,
+        product: product
+      });
+    })
+    .catch(err => console.log("[admin.js] getEditProducts", err));
+
+  //This code if pre-sequelize
+  //   product => {
+  //   if (!product) {
+  //     return res.redirect("/");
+  //   }
+  //   res.render("admin/edit-product", {
+  //     pageTitle: "Edit Product",
+  //     path: "/admin/edit-product",
+  //     editing: editMode,
+  //     product: product
+  //   });
+  // });
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -62,19 +84,36 @@ exports.postEditProduct = (req, res, next) => {
   const updateImageUrl = req.body.imageUrl;
   const updatedDescription = req.body.description;
   // create new Product instance and call save
-  const updatedProduct = new Product(
-    prodId,
-    updatedTitle,
-    updateImageUrl,
-    updatedDescription,
-    updatedPrice
-  );
-  updatedProduct.save();
-  res.redirect("/admin/products");
+  Product.findByPk(prodId)
+    .then(product => {
+      product.title = updatedTitle;
+      product.price = updatedPrice;
+      product.description = updatedDescription;
+      product.imageurl = updateImageUrl;
+      return product.save();
+    })
+    .then(result => {
+      console.log("UPDATED PRODUCT");
+      res.redirect("/admin/products");
+    })
+    .catch(err => console.log("[admin.js] postEditProduct", err));
+
+  // code for pre-Sequelize
+  // const updatedProduct = new Product(
+  //   prodId,
+  //   updatedTitle,
+  //   updateImageUrl,
+  //   updatedDescription,
+  //   updatedPrice
+  // );
+  // updatedProduct.save();
+  // res.redirect("/admin/products");
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.findAll()
+  req.user
+    .getProducts()
+    // Product.findAll()
     .then(products => {
       res.render("admin/products", {
         prods: products,
@@ -98,6 +137,16 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteById(prodId);
-  res.redirect("/admin/products");
+  Product.findByPk(prodId)
+    .then(product => {
+      return product.destroy();
+    })
+    .then(result => {
+      console.log("DESTROYED PRODUCT");
+      res.redirect("/admin/products");
+    })
+    .catch(err => console.log("[admin.js] postDeleteProduct", err));
+  // code pre-Sequelize
+  // Product.deleteById(prodId);
+  // res.redirect("/admin/products");
 };
