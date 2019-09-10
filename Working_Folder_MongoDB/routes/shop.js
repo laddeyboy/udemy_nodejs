@@ -21,10 +21,10 @@ router.get("/", getIndex);
 router.get("/products", getProducts);
 // ':' signals to express that productId is a variable name to be extracted.
 router.get("/products/:productId", getProduct);
-router.get("/cart", getCart);
-router.post("/cart", postCart);
-router.post("/cart-delete-item", postCartDeleteProduct);
-router.get("/orders", getOrders);
-router.post("/create-order", postOrder);
+// router.get("/cart", getCart);
+// router.post("/cart", postCart);
+// router.post("/cart-delete-item", postCartDeleteProduct);
+// router.get("/orders", getOrders);
+// router.post("/create-order", postOrder);
 
 module.exports = router;
