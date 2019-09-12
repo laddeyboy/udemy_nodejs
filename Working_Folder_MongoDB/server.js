@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 
 const errorController = require("./controllers/error");
 const mongoConnect = require("./util/database").mongoConnect;
+const User = require("./models/user");
 
 const { get404 } = errorController;
 const app = express();
@@ -20,14 +21,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use((req, res, next) => {
-  //   User.findByPk(1)
-  //     .then(user => {
-  //       // this is a sequelized object NOT a standard JS object
-  //       req.user = user;
-  //       next();
-  //     })
-  //     .catch(err => console.log(err));
-  next();
+  User.findById("5d77da10d775d309ddadb25d")
+    .then(user => {
+      req.user = user;
+      next();
+    })
+    .catch(err => console.log(err));
 });
 
 app.use("/admin", adminRoutes);
